@@ -98,6 +98,24 @@ body {
 }
 .setting-section .card,
 .job-table.card { background-color: var(--mc-surface); }
+
+/* Tasks page: the sticky queue header used Stash's slate (#202b33) */
+#tasks-panel .tasks-panel-queue {
+  background-color: var(--mc-canvas) !important;
+  border-bottom: 1px solid var(--mc-line);
+  margin-bottom: 24px;
+  padding-bottom: 16px !important;
+}
+#tasks-panel h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.01em; margin-bottom: 12px; }
+#tasks-panel .job-table.card {
+  border-radius: 12px;
+  height: auto;
+  margin-bottom: 0;
+  max-height: 10em;
+  min-height: 56px;
+  padding: 14px 18px;
+}
+#tasks-panel .job-table.card:not(:has(li)) { color: var(--mc-muted); }
 .setting-section .setting-group,
 .setting-section .setting { border-color: var(--mc-line) !important; }
 .setting-section h1,
@@ -111,9 +129,19 @@ hr { border-color: var(--mc-line); }
 .filtered-list-toolbar.has-selection,
 .sidebar-footer {
   background-color: var(--mc-canvas);
-  border-bottom: 1px solid var(--mc-line);
+  border: 0;
   box-shadow: none;
 }
+/* pagination: same segmented look as the toolbar groups */
+.pagination.btn-group { border: 1px solid var(--mc-line); border-radius: 8px; box-shadow: none !important; overflow: hidden; }
+.pagination .btn,
+.pagination .btn:first-child,
+.pagination .btn:last-child { border-width: 0 0 0 1px; border-color: var(--mc-line); border-radius: 0; }
+.pagination .btn:first-child { border-left-width: 0; }
+.pagination .page-count-container .btn { border-left: 1px solid var(--mc-line); }
+.pagination .btn:disabled { background-color: var(--mc-surface-2); color: var(--mc-faint); }
+.pagination-index-container,
+.filtered-list-toolbar + div .pagination-index { color: var(--mc-muted); font-variant-numeric: tabular-nums; }
 
 .query-text-field-clear,
 .modifier-options .modifier-option,
@@ -198,8 +226,47 @@ hr { border-color: var(--mc-line); }
   border-radius: 14px;
   box-shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.8);
 }
+.modal-content { overflow: hidden; }
 .modal-header,
-.modal-footer { border-color: var(--mc-line); }
+.modal-body,
+.modal-footer { background-color: var(--mc-surface); border-color: var(--mc-line); color: var(--mc-text); }
+/* Stash puts an icon then the title in the header: keep them together on the left */
+.modal-header { align-items: center; gap: 10px; justify-content: flex-start; padding: 16px 20px; }
+.modal-header > .fa-icon,
+.modal-header > svg { color: var(--mc-muted); flex: none; }
+.modal-header > span { font-size: 16px; font-weight: 650; }
+.modal-header .close { color: var(--mc-muted); margin-left: auto; opacity: 1; text-shadow: none; }
+.modal-body { padding: 18px 20px; }
+.modal-footer { padding: 12px 20px; }
+
+/* folder picker (Selective scan, library paths): plain list instead of emoji tree */
+.folder-list { border: 1px solid var(--mc-line); border-radius: 8px; padding: 6px; }
+.folder-list-item .btn,
+.folder-list-item .btn.btn-link {
+  border-radius: 6px;
+  color: var(--mc-text);
+  font-family: var(--mc-mono);
+  font-size: 13px;
+  padding: 6px 8px;
+  text-decoration: none;
+}
+.folder-list-item .btn:hover { background-color: var(--mc-surface-2); color: var(--mc-text); }
+.folder-list-item .btn span::before,
+.folder-list-item:last-child .btn span::before {
+  background-color: var(--mc-muted);
+  content: "";
+  height: 14px;
+  margin-right: 10px;
+  padding: 0;
+  transform: none;
+  vertical-align: -2px;
+  width: 16px;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1 2.5A1.5 1.5 0 012.5 1h3.4l1.6 1.8h6A1.5 1.5 0 0115 4.3v7.2a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 11.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 14'%3E%3Cpath d='M1 2.5A1.5 1.5 0 012.5 1h3.4l1.6 1.8h6A1.5 1.5 0 0115 4.3v7.2a1.5 1.5 0 01-1.5 1.5h-11A1.5 1.5 0 011 11.5z'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+.folder-list-parent .btn span::before { visibility: visible; }
+.folder-list-parent .btn-link { color: var(--mc-muted); font-weight: 500; }
+.folder-list:empty { display: none; }
 .modal-backdrop.show { opacity: 0.7; }
 .dropdown-menu,
 .dropdown-menu.bg-secondary {
