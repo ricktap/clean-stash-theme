@@ -106,6 +106,9 @@
     pin: "M8 1a4.5 4.5 0 00-4.5 4.5C3.5 9 8 15 8 15s4.5-6 4.5-9.5A4.5 4.5 0 008 1zm0 6.2a1.7 1.7 0 110-3.4 1.7 1.7 0 010 3.4z",
   };
   const icon = (name) => h("svg", { className: "mc-ico", viewBox: "0 0 16 16", "aria-hidden": "true" }, h("path", { d: PATHS[name] }));
+  // archive box: marks an organized ("sorted") scene
+  const box = h("svg", { viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 1.7, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" },
+    h("path", { d: "M2.5 3.5h11v3h-11z" }), h("path", { d: "M3.5 6.5v6h9v-6" }), h("path", { d: "M6.5 9h3" }));
   const check = h("svg", { viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 2.6, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, h("path", { d: "M3.5 8.5l3 3 6-7" }));
 
   function rating(r100) {
@@ -129,7 +132,7 @@
   api.patch.instead("SceneCard.Overlays", function (props) {
     const s = props.scene;
     return h(React.Fragment, null,
-      s.organized ? h("span", { className: "mc-org", title: "Organized" }, check) : null);
+      s.organized ? h("span", { className: "mc-org", title: "Organized" }, box) : null);
   });
 
   // performer chip with a photo preview after 0.7s of hover
