@@ -1,0 +1,10 @@
+name: Modern Cards
+description: Calm, modern theme for scene, studio and performer cards, the start page rows and the scene sidebar. Performers and tags shown inline, no hover motion.
+version: 1.7.0
+url: https://github.com/ricktap/clean-stash-theme
+ui:
+  css:
+    - fonts.css
+    - modern-cards.css
+  javascript:
+    - modern-cards.js
