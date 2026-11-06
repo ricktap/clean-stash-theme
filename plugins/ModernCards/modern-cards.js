@@ -11,6 +11,37 @@
   const h = React.createElement;
   const Link = api.libraries.ReactRouterDOM.Link;
 
+  /* ---------- settings (Settings → Plugins → Modern Cards) ---------- */
+  const PLUGIN_ID = "ModernCards";
+  const pick = (v, allowed, dflt) => {
+    const x = typeof v === "string" ? v.trim().toLowerCase() : "";
+    return allowed.indexOf(x) !== -1 ? x : dflt;
+  };
+  function readSettings(raw) {
+    const c = raw || {};
+    const delay = Number(c.performerPreviewDelay);
+    return {
+      previewDelay: c.performerPreviewDelay != null && c.performerPreviewDelay !== "" && isFinite(delay) && delay >= 0 ? delay : 700,
+      male: pick(c.malePerformers, ["show", "minimal", "hide"], "show"),
+      country: pick(c.countryDisplay, ["code", "flag"], "code"),
+      studio: pick(c.studioDisplay, ["text", "logo"], "text"),
+    };
+  }
+  // Always call this at the top of a render (it is a React hook).
+  function useSettings() {
+    let raw;
+    try {
+      const svc = api.utils && api.utils.StashService;
+      const q = svc && svc.useConfiguration ? svc.useConfiguration() : null;
+      const plugins = q && q.data && q.data.configuration && q.data.configuration.plugins;
+      raw = plugins && plugins[PLUGIN_ID];
+    } catch (e) { /* older Stash: defaults */ }
+    return React.useMemo(() => readSettings(raw), [raw]);
+  }
+  const isMale = (p) => p && p.gender === "MALE";
+  // Stash serves a generated placeholder when a studio has no logo
+  const hasLogo = (studio) => studio && studio.image_path && studio.image_path.indexOf("default=true") === -1;
+
   /* ---------- helpers ---------- */
   const stop = (e) => e.stopPropagation();
 
@@ -119,10 +150,12 @@
   /* ---------- scene card ---------- */
 
   // MP4·1080p top left, duration bottom right
+  const specParts = (f) => (f ? [fileType(f.path), f.width && f.height ? resolution(f.width, f.height) : ""].filter(Boolean) : []);
   api.patch.instead("SceneCard.SceneSpecs", function (props) {
+    const cfg = useSettings();
     const f = props.scene && props.scene.files && props.scene.files[0];
     if (!f) return null;
-    const parts = [fileType(f.path), f.width && f.height ? resolution(f.width, f.height) : ""].filter(Boolean);
+    const parts = cfg.studio === "logo" && hasLogo(props.scene.studio) ? [] : specParts(f);
     return h("div", { className: "scene-specs-overlay mc-specs" },
       parts.length ? h("span", { className: "mc-pill mc-res" }, dotted(parts)) : null,
       f.duration > 0 ? h("span", { className: "mc-pill mc-dur" }, timestamp(f.duration)) : null);
@@ -130,15 +163,19 @@
 
   // studio name bottom left, organized badge top right
   api.patch.instead("SceneCard.Overlays", function (props) {
+    const cfg = useSettings();
     const s = props.scene;
+    const logo = cfg.studio === "logo" && hasLogo(s.studio);
     return h(React.Fragment, null,
+      logo ? h(Link, { to: "/studios/" + s.studio.id, className: "mc-studio-logo", onClick: stop, title: s.studio.name, "aria-label": s.studio.name },
+        h("img", { src: s.studio.image_path, alt: "", loading: "lazy" })) : null,
       s.organized ? h("span", { className: "mc-org", title: "Organized" }, box) : null);
   });
 
   // performer chip with a photo preview after 0.7s of hover
-  const PREVIEW_DELAY = 700;
   function PerformerChip(props) {
     const p = props.performer;
+    const delay = props.delay != null ? props.delay : 700;
     const ref = React.useRef(null);
     const timer = React.useRef(0);
     const [pos, setPos] = React.useState(null);
@@ -155,7 +192,7 @@
         const above = r.top - H - M > 8;
         const left = Math.min(Math.max(8, r.left + r.width / 2 - W / 2), window.innerWidth - W - 8);
         setPos({ left: left, top: above ? r.top - H - M : r.bottom + M });
-      }, PREVIEW_DELAY);
+      }, delay);
     }
     React.useEffect(() => {
       if (!pos) return undefined;
@@ -186,9 +223,12 @@
 
   // date line, performers, tags, description
   function SceneDetails(props) {
+    const cfg = useSettings();
     const s = props.scene;
     const [open, setOpen] = React.useState(false);
-    const perfs = s.performers || [];
+    const perfs = (s.performers || []).filter((p) => !(cfg.male === "hide" && isMale(p)));
+    const logo = cfg.studio === "logo" && hasLogo(s.studio);
+    const f = s.files && s.files[0];
     const tags = s.tags || [];
     const MAX_P = 3, MAX_T = 4;
     const shownTags = open ? tags : tags.slice(0, MAX_T);
@@ -198,11 +238,13 @@
     // render (as placeholders) to keep that rhythm.
     return h("div", { className: "scene-card__details mc-details" },
       h("div", { className: "mc-meta" },
-        s.studio ? h(Link, { to: "/studios/" + s.studio.id, className: "mc-meta-studio", onClick: stop, title: s.studio.name }, s.studio.name) : h("span", { className: "mc-meta-empty" }, "No studio"),
+        logo
+          ? h("span", { className: "mc-meta-spec" }, dotted(specParts(f)))
+          : s.studio ? h(Link, { to: "/studios/" + s.studio.id, className: "mc-meta-studio", onClick: stop, title: s.studio.name }, s.studio.name) : h("span", { className: "mc-meta-empty" }, "No studio"),
         s.date ? h("span", { className: "mc-meta-date" }, s.date) : null),
       h("div", { className: "mc-cast" },
         perfs.length
-          ? perfs.slice(0, MAX_P).map((p) => h(PerformerChip, { key: p.id, performer: p }))
+          ? perfs.slice(0, MAX_P).map((p) => h(PerformerChip, { key: p.id, performer: p, delay: cfg.previewDelay }))
           : h("span", { className: "mc-cast-empty" }, "No performers"),
         perfs.length > MAX_P ? h(Link, { to: "/scenes/" + s.id, className: "mc-chip mc-more", onClick: stop, title: perfs.slice(MAX_P).map((p) => p.name).join(", ") }, "+" + (perfs.length - MAX_P)) : null),
       h("p", { className: "mc-desc" + (s.details ? "" : " is-empty") }, s.details || ""),
@@ -240,9 +282,15 @@
   /* ---------- performer card ---------- */
 
   api.patch.after("PerformerCard.Overlays", function () {
+    const cfg = useSettings();
     const props = arguments[0];
     const result = arguments[arguments.length - 1];
     const p = props.performer;
+    const cc = p.country ? String(p.country) : "";
+    const country = !cc ? null
+      : cfg.country === "flag" && /^[a-z]{2}$/i.test(cc)
+        ? h("span", { className: "mc-flag fi fi-" + cc.toLowerCase(), title: cc, role: "img", "aria-label": cc })
+        : h("span", { className: "mc-cc" }, cc);
     const a = age(p.birthdate, props.ageFromDate || p.death_date);
     const g = GENDER[p.gender];
     return h(React.Fragment, null, result,
@@ -250,7 +298,16 @@
         h("b", null, g ? h("span", { className: "mc-gender mc-g-" + String(p.gender).toLowerCase() }, g) : null, p.name),
         a || p.country ? h("small", null,
           a ? (props.ageFromDate ? a + " at production" : a + " yrs") : null,
-          p.country ? h("span", { className: "mc-cc" }, p.country) : null) : null));
+          country) : null));
+  });
+
+  // male performers: full card (show), a small pill (minimal) or nothing (hide)
+  api.patch.instead("PerformerCard", function (props, Original) {
+    const cfg = useSettings();
+    const p = props.performer;
+    if (!isMale(p) || cfg.male === "show") return h(Original, props);
+    if (cfg.male === "hide") return null;
+    return h("div", { className: "mc-perf-pill" }, h(PerformerChip, { performer: p, delay: cfg.previewDelay }));
   });
 
   api.patch.instead("PerformerCard.Popovers", function (props) {

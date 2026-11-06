@@ -524,6 +524,36 @@ hr { border-color: var(--mc-line); }
 .scene-card:hover .mc-studio,
 .scene-card:hover .mc-org { opacity: 0; transition: opacity 0.2s; }
 
+/* studio logo on the thumbnail (setting "Studio on scene cards" = logo).
+   Stays visible while the preview plays. */
+.grid-card a.mc-studio-logo {
+  -webkit-backdrop-filter: blur(6px);
+  backdrop-filter: blur(6px);
+  align-items: center;
+  background: var(--mc-pill-bg);
+  border-radius: 6px;
+  bottom: 10px;
+  display: flex;
+  height: 30px;
+  left: 10px;
+  max-width: 45%;
+  padding: 4px 7px;
+  position: absolute;
+  z-index: 5;
+}
+.grid-card a.mc-studio-logo:hover { background: rgba(10, 12, 16, 0.8); }
+.mc-studio-logo img { display: block; height: 100%; max-width: 100%; object-fit: contain; width: auto; }
+.mc-meta-spec {
+  align-items: center;
+  color: var(--mc-muted);
+  display: inline-flex;
+  font-family: var(--mc-mono);
+  font-size: 11.5px;
+  gap: 5px;
+  min-width: 0;
+  white-space: nowrap;
+}
+
 /* details: date line goes above the title */
 .scene-card .card-section > .mc-details { display: contents; }
 .mc-meta {
@@ -740,6 +770,17 @@ hr { border-color: var(--mc-line); }
   font-size: 10px;
   padding: 0 5px;
 }
+.mc-flag.fi {
+  border-radius: 2px;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.25);
+  height: 11px;
+  line-height: 11px;
+  width: 15px;
+}
+/* male performer as a pill (setting "Male performers" = minimal) */
+.mc-perf-pill { align-self: flex-start; display: inline-flex; flex: 0 0 auto; margin: 6px; max-width: 100%; }
+.mc-perf-pill .mc-chip { max-width: 240px; }
+.mc-perf-pill a.mc-chip:hover { background: var(--mc-accent-soft); border-color: var(--mc-accent); }
 /* favorite heart: pink when set, only on hover when not */
 .performer-card .favorite-button,
 .studio-card .favorite-button {
