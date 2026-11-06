@@ -13,7 +13,7 @@ To remove it, disable or delete the plugin and reload.
 ## What it changes
 
 **Scene cards**
-- Thumbnail shows "MP4·1080p" (top left), studio name (bottom left), duration (bottom right), a green check when organized (top right), and a thin resume bar.
+- Thumbnail shows "MP4·1080p" (bottom left), duration (bottom right), a box badge when organized (top right), and a thin resume bar. Selecting a card shows a dashed circle that turns into a green check.
 - Date and studio code above the title, performer chips (up to 4, then "+N"), tag chips (6, then "+N" expands in place) and a 2-line description.
 - Footer: plays, O-count, markers, "H.264/AAC · 2.4 GB", rating.
 
@@ -27,6 +27,19 @@ To remove it, disable or delete the plugin and reload.
 - Details tab: performers first as compact rows, then tags, then the description (4 lines plus "Show more"), then created/updated/code as small metadata.
 - Markers tab: smaller "+ Create marker" button, markers as a clean list with the time in monospace, Edit appears on hover, thumbnails in a 2-column grid with titles always visible.
 
+## Settings
+
+Under **Settings → Plugins → Modern Cards**. Leave a field empty for the default.
+
+| Setting | Values | Default |
+| --- | --- | --- |
+| Performer photo preview delay (ms) | any number, `0` = at once | `700` |
+| Male performers | `show` (like everyone else), `minimal` (a small pill instead of a full performer card), `hide` (left out of every card and list) | `show` |
+| Performer country | `code` (e.g. US), `flag` | `code` |
+| Studio on scene cards | `text` (name above the title), `logo` (logo on the thumbnail, linking to the studio and staying visible on hover; "MP4·1080p" moves above the title) | `text` |
+
+Studios without a logo always show the name. Reload the browser tab after changing a setting.
+
 ## Files
 
 - `ModernCards.yml`: plugin manifest
@@ -36,4 +49,4 @@ To remove it, disable or delete the plugin and reload.
 
 ## Requirements
 
-Written against Stash's current `develop` source (November 2026). It needs a Stash version whose plugin API includes `SceneCard.SceneSpecs`, `SceneCard.Details`, `SceneCard.Overlays`, `SceneCard.Popovers`, `PerformerCard.Overlays`, `PerformerCard.Popovers` and `ScenePage`. On older versions, any component that doesn't exist is simply left as is.
+Written against Stash's current `develop` source (November 2026). It needs a Stash version whose plugin API includes `SceneCard.SceneSpecs`, `SceneCard.Details`, `SceneCard.Overlays`, `SceneCard.Popovers`, `PerformerCard`, `PerformerCard.Overlays`, `PerformerCard.Popovers` and `ScenePage`. On older versions, any component that doesn't exist is simply left as is.

@@ -1,6 +1,6 @@
 name: Modern Cards
 description: Calm, modern theme for scene, studio and performer cards, the start page rows and the scene sidebar. Performers and tags shown inline, no hover motion.
-version: 1.7.0
+version: 1.8.0
 url: https://github.com/ricktap/clean-stash-theme
 ui:
   css:
@@ -8,3 +8,20 @@ ui:
     - modern-cards.css
   javascript:
     - modern-cards.js
+settings:
+  performerPreviewDelay:
+    displayName: Performer photo preview delay (ms)
+    description: How long to hover a performer on a scene card before the photo preview appears. Default 700. Use 0 to show it at once.
+    type: NUMBER
+  malePerformers:
+    displayName: Male performers
+    description: "show = same as everyone else (default); minimal = a small pill instead of a full performer card; hide = left out of every card and list."
+    type: STRING
+  countryDisplay:
+    displayName: Performer country
+    description: "code = short country code like US (default); flag = country flag."
+    type: STRING
+  studioDisplay:
+    displayName: Studio on scene cards
+    description: "text = studio name above the title (default); logo = studio logo on the thumbnail, linking to the studio, with file type and resolution moving above the title."
+    type: STRING
