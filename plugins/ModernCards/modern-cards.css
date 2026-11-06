@@ -175,6 +175,16 @@ hr { border-color: var(--mc-line); }
 .custom-range::-webkit-slider-thumb { background: var(--mc-accent); }
 .custom-range::-moz-range-thumb { background: var(--mc-accent); }
 
+/* detail page action buttons (Edit, Auto tag, Merge, Submit, Delete).
+   Stash spaces them with margin-right on direct .btn children only, so buttons
+   wrapped in a <div> (Auto tag, Submit to Stash-Box) end up touching. */
+.details-edit { align-items: center; column-gap: 8px; row-gap: 8px; }
+.details-edit > .btn,
+.details-edit > .btn-group,
+.details-edit > div > .btn,
+.details-edit > div > .btn-group { margin: 0 !important; }
+.details-edit > div:empty { display: none; }
+
 /* settings sidebar */
 .nav-pills .nav-link { border-radius: 8px; color: var(--mc-muted); }
 .nav-pills .nav-link:hover { background: var(--mc-surface); color: var(--mc-text); }
@@ -706,6 +716,16 @@ hr { border-color: var(--mc-line); }
   scrollbar-width: thin;
 }
 .mc-row-track > * { flex: 0 0 auto; margin: 0 !important; scroll-snap-align: start; }
+/* loading placeholders: match the card shell instead of Stash's slate boxes */
+.recommendation-row .skeleton-card,
+.mc-row-track .skeleton-card {
+  background: var(--mc-surface);
+  border: 1px solid var(--mc-line);
+  border-radius: var(--mc-r-card);
+  box-shadow: none;
+}
+.mc-row-track.is-loading { overflow-x: hidden; }
+@media (prefers-reduced-motion: reduce) { .skeleton-card { animation: none !important; } }
 .mc-row-track::-webkit-scrollbar { height: 6px; }
 .mc-row-track::-webkit-scrollbar-thumb { background: var(--mc-line); border-radius: 3px; }
 .scene-recommendations .mc-row-track > *,
@@ -775,26 +795,35 @@ hr { border-color: var(--mc-line); }
 .scene-tabs .scene-toolbar-group:last-child .count-button .btn:last-child { border-right-width: 1px; border-radius: 0 8px 8px 0; font-family: var(--mc-mono); font-size: 12px; padding-left: 4px; }
 .scene-tabs .organized-button:not(.not-organized) { border-color: rgba(62, 207, 142, 0.4) !important; color: var(--mc-ok); }
 
-/* tabs */
+/* tabs: scene sidebar and every detail page (performer, studio, tag, group, image) */
+.nav-tabs { border-bottom: 1px solid var(--mc-line); gap: 2px; }
 .scene-tabs .nav-tabs {
-  border-bottom: 1px solid var(--mc-line);
   flex-wrap: nowrap;
-  gap: 2px;
   overflow-x: auto;
   scrollbar-width: none;
 }
-.scene-tabs .nav-tabs .nav-link {
+.nav-tabs .nav-link,
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-item.show .nav-link {
+  align-items: center;
   background: none;
   border: 0;
   border-bottom: 2px solid transparent;
+  border-radius: 0;
   color: var(--mc-muted);
+  display: inline-flex;
   font-size: 13.5px;
   font-weight: 600;
+  gap: 6px;
+  margin-bottom: -1px;
   padding: 10px 8px 9px;
   white-space: nowrap;
 }
-.scene-tabs .nav-tabs .nav-link:hover { color: var(--mc-text); }
-.scene-tabs .nav-tabs .nav-link.active { border-bottom-color: var(--mc-accent); color: var(--mc-text); }
+.nav-tabs .nav-link:hover { border-bottom-color: transparent; color: var(--mc-text); }
+.nav-tabs .nav-link.active,
+.nav-tabs .nav-link.active:hover { border-bottom-color: var(--mc-accent); color: var(--mc-text); }
+.nav-tabs .nav-link .badge { background: var(--mc-surface-2); color: var(--mc-muted); font-family: var(--mc-mono); font-weight: 500; margin: 0; }
+.nav-tabs .nav-link.active .badge { background: var(--mc-accent-soft); color: var(--mc-accent); }
 
 /* ---------------------------------------------------------------------
    Scene page sidebar: Details tab

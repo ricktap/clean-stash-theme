@@ -269,10 +269,26 @@
   const arrowPath = { prev: "M10 3L5 8l5 5", next: "M6 3l5 5-5 5" };
   const arrow = (dir) => h("svg", { viewBox: "0 0 16 16", fill: "none", stroke: "currentColor", strokeWidth: 2, strokeLinecap: "round", strokeLinejoin: "round", "aria-hidden": "true" }, h("path", { d: arrowPath[dir] }));
 
+  // Stash renders its loading skeletons with one shared key ("_undefined"), so
+  // React cannot tell them apart and leaves some behind once the real cards
+  // arrive. Give each skeleton its own key; real cards keep theirs.
+  const isSkeleton = (c) => c && c.props && typeof c.props.className === "string" && c.props.className.indexOf("skeleton-card") !== -1;
+  function cleanKeys(children) {
+    const out = [];
+    React.Children.forEach(children, (c) => {
+      if (c == null || c === false) return;
+      if (isSkeleton(c)) out.push(React.cloneElement(c, { key: "mc-skel-" + out.length }));
+      else out.push(c);
+    });
+    return out;
+  }
+
   function PagedTrack(props) {
     const ref = React.useRef(null);
     const [nav, setNav] = React.useState({ prev: false, next: false });
-    const count = React.Children.count(props.children);
+    const items = cleanKeys(props.children);
+    const loading = items.length > 0 && items.every(isSkeleton);
+    const count = items.length;
 
     const sync = React.useCallback(() => {
       const el = ref.current;
@@ -304,7 +320,7 @@
       h("div", { className: "mc-row-nav" },
         h("button", { type: "button", className: "mc-row-btn", "aria-label": "Previous page", disabled: !nav.prev, onClick: () => page(-1) }, arrow("prev")),
         h("button", { type: "button", className: "mc-row-btn", "aria-label": "Next page", disabled: !nav.next, onClick: () => page(1) }, arrow("next"))),
-      h("div", { className: "mc-row-track", ref: ref }, props.children));
+      h("div", { className: "mc-row-track" + (loading ? " is-loading" : ""), ref: ref, "aria-busy": loading || undefined }, items));
   }
 
   // Older Stash: swap the <Slider> element inside a rendered row for PagedTrack.
@@ -336,7 +352,7 @@
       props.count ? h("span", { className: "mc-row-count" }, props.count.toLocaleString()) : null);
     const link = h(Link, { to: props.url },
       Intl ? h(Intl.FormattedMessage, { id: "view_all", defaultMessage: "View all" }) : "View all");
-    const track = h(PagedTrack, null, props.children);
+    const track = h(PagedTrack, { key: props.loading ? "loading" : "loaded" }, props.children);
     const Row = api.components && api.components.RecommendationRow;
     if (Row) return h(Row, { className: props.className, header: header, link: link }, track);
     return h("div", { className: "recommendation-row " + (props.className || "") },
