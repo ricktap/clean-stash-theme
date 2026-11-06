@@ -302,7 +302,10 @@
   });
 
   // male performers: full card (show), a small pill (minimal) or nothing (hide)
-  api.patch.instead("PerformerCard", function (props, Original) {
+  api.patch.instead("PerformerCard", function (props) {
+    // Stash appends the original component as the LAST argument; React passes
+    // its own second argument (context/ref) before it.
+    const Original = arguments[arguments.length - 1];
     const cfg = useSettings();
     const p = props.performer;
     if (!isMale(p) || cfg.male === "show") return h(Original, props);
