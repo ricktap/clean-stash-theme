@@ -476,8 +476,74 @@
     applyScrubber(btn);
   }
 
+  /* ---------- scene favorite (custom field "favorite": 1 / 0) ---------- */
+  const FAV_FIELD = "favorite";
+  const isFavValue = (v) => v === 1 || v === true || (typeof v === "string" && ["1", "true", "yes"].indexOf(v.trim().toLowerCase()) !== -1);
+  const heart = (filled) => h("svg", { viewBox: "0 0 16 16", "aria-hidden": "true", fill: filled ? "currentColor" : "none", stroke: "currentColor", strokeWidth: 1.6, strokeLinejoin: "round" },
+    h("path", { d: "M8 14s-5.5-3.4-5.5-7.6A3 3 0 018 4.6a3 3 0 015.5 1.8C13.5 10.6 8 14 8 14z" }));
+
+  function SceneFavoriteButton(props) {
+    const scene = props.scene;
+    const stored = scene && scene.custom_fields ? scene.custom_fields[FAV_FIELD] : undefined;
+    const [fav, setFav] = React.useState(isFavValue(stored));
+    const [busy, setBusy] = React.useState(false);
+    React.useEffect(() => { setFav(isFavValue(stored)); }, [scene && scene.id, stored]);
+    const svc = api.utils && api.utils.StashService;
+    const [updateScene] = svc && svc.useSceneUpdate ? svc.useSceneUpdate() : [null];
+
+    async function toggle() {
+      if (!updateScene || busy) return;
+      const next = !fav;
+      // keep the type already in use (number 1/0 by default, "1"/"0" if stored as text)
+      const value = typeof stored === "string" ? (next ? "1" : "0") : (next ? 1 : 0);
+      setFav(next);
+      setBusy(true);
+      try {
+        await updateScene({ variables: { input: { id: scene.id, custom_fields: { partial: { [FAV_FIELD]: value } } } } });
+      } catch (e) {
+        setFav(!next);
+        console.error("Modern Cards: could not save favorite", e);
+      } finally {
+        setBusy(false);
+      }
+    }
+
+    return h("button", {
+      type: "button",
+      className: "btn btn-secondary minimal mc-scene-fav" + (fav ? " is-fav" : ""),
+      title: fav ? "Remove from favorites" : "Add to favorites",
+      "aria-pressed": fav,
+      disabled: busy || !updateScene,
+      onClick: toggle,
+    }, heart(fav));
+  }
+
+  // The scene toolbar isn't patchable, so mount the button into a slot next to "Organized".
+  function useToolbarSlot(sceneId) {
+    const [slot, setSlot] = React.useState(null);
+    React.useEffect(() => {
+      let host = null;
+      function place() {
+        const org = document.querySelector(".scene-tabs .scene-toolbar .organized-button");
+        const anchor = org && org.parentElement; // the <span> around the button
+        if (!anchor || !anchor.parentElement) return;
+        if (host && host.isConnected && host.previousSibling === anchor) return;
+        if (!host) { host = document.createElement("span"); host.className = "mc-fav-slot"; }
+        anchor.parentElement.insertBefore(host, anchor.nextSibling);
+        setSlot(host);
+      }
+      place();
+      const root = document.querySelector(".scene-tabs") || document.body;
+      const obs = new MutationObserver(place);
+      obs.observe(root, { childList: true, subtree: true });
+      return () => { obs.disconnect(); if (host) host.remove(); setSlot(null); };
+    }, [sceneId]);
+    return slot;
+  }
+
   function ScenePageEnhancer(props) {
     const scene = props.scene;
+    const favSlot = useToolbarSlot(scene && scene.id);
     // "Show more" for long descriptions, also when the Details tab is opened later
     React.useEffect(() => {
       const root = document.querySelector(".scene-tabs");
@@ -496,7 +562,9 @@
       obs.observe(root, { childList: true, subtree: true });
       return () => { obs.disconnect(); document.body.classList.remove("mc-scrubber-hidden"); };
     }, [scene && scene.id]);
-    return null;
+    return favSlot && scene && api.ReactDOM && api.ReactDOM.createPortal
+      ? api.ReactDOM.createPortal(h(SceneFavoriteButton, { scene: scene }), favSlot)
+      : null;
   }
 
   api.patch.after("ScenePage", function () {
