@@ -1263,3 +1263,15 @@ body.mc-scrubber-hidden .scene-player-container .scrubber-wrapper { display: non
 @media (prefers-reduced-motion: reduce) {
   .grid-card, .grid-card * { transition: none !important; }
 }
+
+/* scene favorite toggle (custom field "favorite"), next to Organized */
+.scene-tabs .scene-toolbar .mc-scene-fav {
+  align-items: center;
+  color: var(--mc-muted);
+  display: inline-flex;
+  justify-content: center;
+}
+.scene-tabs .scene-toolbar .mc-scene-fav svg { height: 16px; width: 16px; }
+.scene-tabs .scene-toolbar .mc-scene-fav:hover { color: var(--mc-fav); }
+.scene-tabs .scene-toolbar .mc-scene-fav.is-fav { border-color: rgba(240, 96, 127, 0.45) !important; color: var(--mc-fav); }
+.scene-tabs .scene-toolbar .mc-scene-fav:disabled { opacity: 0.6; }

@@ -23,6 +23,7 @@ To remove it, disable or delete the plugin and reload.
 - Performer name, gender, age and country code on the photo; heart only on hover unless favorited; footer with scenes, O-count, rating.
 
 **Scene sidebar**
+- Heart button next to "Organized" marks the scene as a favorite. It writes the scene's custom field `favorite` (`1` / `0`) and leaves other custom fields alone.
 - Smaller, left-aligned studio logo; one spec line with fps, resolution, file type, codecs and size; same-size toolbar buttons; underline tabs.
 - Details tab: performers first as compact rows, then tags, then the description (4 lines plus "Show more"), then created/updated/code as small metadata.
 - Markers tab: smaller "+ Create marker" button, markers as a clean list with the time in monospace, Edit appears on hover, thumbnails in a 2-column grid with titles always visible.
